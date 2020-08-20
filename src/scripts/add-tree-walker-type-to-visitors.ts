@@ -5,7 +5,7 @@
  */
 
 import { getProject, getFunctions } from '../utils'
-import { Node } from 'ts-morph'
+// import { Node } from 'ts-morph'
 
 (async () => {
   const project = getProject()
@@ -13,12 +13,14 @@ import { Node } from 'ts-morph'
   for (const file of files) {
     const functions = getFunctions(file)
     for (const func of functions) {
-      if (Node.isArrowFunction(func)) {
-        console.log(func.getText())
-      } else {
-        console.log(func.getName())
+      const parameters = func.getParameters()
+      for (const param of parameters) {
+        if (param.getName() === 'visitor' && param.getType().getText() === 'any') {
+          param.setType('TreeWalker')
+        }
       }
     }
-    console.log(file.getFilePath())
+    // console.log(file.getFilePath())
   }
+  await project.save()
 })().catch(console.error)
