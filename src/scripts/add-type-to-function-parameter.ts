@@ -7,6 +7,13 @@
 import { getProject, getFunctions } from '../utils'
 // import { Node } from 'ts-morph'
 
+// const funcParamName = 'visitor'
+// const newType = 'TreeWalker'
+
+const funcParamName = 'compressor'
+const newType = 'Compressor'
+
+;
 (async () => {
   const project = getProject()
   const files = project.getSourceFiles()
@@ -15,8 +22,8 @@ import { getProject, getFunctions } from '../utils'
     for (const func of functions) {
       const parameters = func.getParameters()
       for (const param of parameters) {
-        if (param.getName() === 'visitor' && param.getType().getText() === 'any') {
-          param.setType('TreeWalker')
+        if (param.getName() === funcParamName && param.getType().getText() === 'any') {
+          param.setType(newType)
         }
       }
     }
