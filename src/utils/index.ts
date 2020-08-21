@@ -1,5 +1,7 @@
 
-import { Project, SourceFile, Node, MethodDeclaration, FunctionDeclaration, ArrowFunction } from 'ts-morph'
+import { Project, SourceFile, Node, MethodDeclaration, FunctionDeclaration, ArrowFunction, ImportDeclaration, FunctionExpression } from 'ts-morph'
+import * as path from 'path'
+
 import yargs = require('yargs')
 
 const argv = yargs.options({
@@ -28,33 +30,75 @@ export function getProject (): Project {
  * @param callback callback function, return false to stop walk
  */
 export function walk (node: Node, callback: (node: Node) => boolean): boolean {
+  return _walk(node, callback, new Set())
+}
+
+function _walk (node: Node, callback: (node: Node) => boolean, parsed: Set<Node>): boolean {
+  try {
+    if (parsed.has(node) || node.compilerNode === null) {
+      return false
+    }
+    parsed.add(node)
+  } catch (error) {
+    return false
+  }
+
+  const children = node.getChildren()
+
   // visit root node
   if (!callback(node)) {
     return false
   }
 
   // visit children, depth-first-search
-  for (let i = 0; i < node.getChildCount(); i++) {
-    if (!walk(node.getChildAtIndex(i), callback)) {
+  for (let i = 0; i < children.length; i++) {
+    if (!_walk(children[i], callback, parsed)) {
       return false
     }
   }
   return true
 }
 
-export function getFunctions (file: SourceFile): Array<MethodDeclaration | FunctionDeclaration | ArrowFunction> {
-  const functions: Array<MethodDeclaration | FunctionDeclaration | ArrowFunction> = []
+export function getFunctions (file: SourceFile): Array<MethodDeclaration | FunctionDeclaration | ArrowFunction | FunctionExpression> {
+  const functions: Array<MethodDeclaration | FunctionDeclaration | ArrowFunction | FunctionExpression> = []
   walk(file, (node) => {
-    if (Node.isMethodDeclaration(node) || Node.isFunctionDeclaration(node) || Node.isArrowFunction(node)) {
-      functions.push(node)
-    }
+    const checklist: any[] = [node]
     if (Node.isPropertyDeclaration(node)) {
-      const initializer = node.getInitializer()
-      if (Node.isMethodDeclaration(initializer) || Node.isFunctionDeclaration(initializer) || Node.isArrowFunction(initializer)) {
-        functions.push(initializer)
+      checklist.push(node.getInitializer())
+    }
+    if (Node.isExportAssignment(node)) {
+      checklist.push(node.getExpression())
+    }
+    if (Node.isMethodDeclaration(node)) {
+      // console.log(node.getBody()?.getText())
+      checklist.push(node.getBody())
+    }
+    for (const item of checklist) {
+      if ((Node.isMethodDeclaration(item) || Node.isFunctionDeclaration(item) || Node.isArrowFunction(item) || Node.isFunctionExpression(node))) {
+        functions.push(item)
       }
     }
     return true
   })
   return functions
+}
+
+export function getImportDeclaration (sourceFile: SourceFile, includeFile: SourceFile, createIfNotExists: boolean = false): ImportDeclaration | undefined {
+  const arr = sourceFile.getImportDeclarations().filter(
+    item => item.getModuleSpecifierSourceFile() === includeFile
+  ) ?? []
+  let result
+  if (arr.length > 0) {
+    result = arr[0]
+  }
+
+  if (result === undefined && createIfNotExists) {
+    const relativePath = path.relative(sourceFile.getFilePath().toString(), includeFile.getFilePath().toString())
+    result = sourceFile.insertImportDeclaration(0, { moduleSpecifier: relativePath, namedImports: [] })
+  }
+  return result as ImportDeclaration
+}
+
+export function camelToSnakeCase (str: string): string {
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
 }

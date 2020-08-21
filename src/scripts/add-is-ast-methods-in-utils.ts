@@ -4,10 +4,8 @@
 //  * Add is_ast_xxx functions in lib/utils.ts
  */
 
-import { getProject } from '../utils'
+import { getProject, camelToSnakeCase } from '../utils'
 // import { Node } from 'ts-morph'
-
-const camelToSnakeCase = (str: string): string => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
 
 ;
 (async () => {
