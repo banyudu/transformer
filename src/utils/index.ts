@@ -95,6 +95,9 @@ export function getImportDeclaration (sourceFile: SourceFile, includeFile: Sourc
   if (result === undefined && createIfNotExists) {
     let relativePath = path.relative(path.dirname(sourceFile.getFilePath().toString()), includeFile.getFilePath().toString())
     relativePath = relativePath.substr(0, relativePath.length - path.extname(relativePath).length)
+    if (!relativePath.startsWith('.')) {
+      relativePath = './' + relativePath
+    }
     result = sourceFile.insertImportDeclaration(0, { moduleSpecifier: relativePath, namedImports: [] })
   }
   return result as ImportDeclaration
