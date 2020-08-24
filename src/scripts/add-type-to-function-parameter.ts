@@ -7,17 +7,17 @@
 import { getProject, getFunctions, getImportDeclaration } from '../utils'
 import { SourceFile } from 'ts-morph'
 
-// const funcParamName = 'visitor'
-// const newType = 'TreeWalker'
-
-const funcParamName = 'output'
-const newType = 'OutputStream'
+const funcParamName = 'compressor' // function parameter name
+const newType = 'Compressor' // new type name
+const importFile = 'lib/compressor.ts' // file to import
+const defaultImport = 'Compressor' // set it if use default import
+const namedImport = '' // set it if use named import
 
 ;
 (async () => {
   const project = getProject()
   const files = project.getSourceFiles()
-  const outputFile = project.getSourceFile(file => file.getFilePath().includes('lib/output.ts')) as SourceFile
+  const outputFile = project.getSourceFile(file => file.getFilePath().includes(importFile)) as SourceFile
   for (const file of files) {
     const functions = getFunctions(file)
     let shouldImport = false
@@ -32,7 +32,13 @@ const newType = 'OutputStream'
     }
     if (shouldImport) {
       const decl = getImportDeclaration(file, outputFile, true)
-      decl?.addNamedImport('OutputStream')
+      if (String(namedImport) !== '') {
+        decl?.addNamedImport(namedImport)
+      }
+
+      if (String(defaultImport) !== '') {
+        decl?.setDefaultImport(defaultImport)
+      }
     }
   }
   await project.save()
