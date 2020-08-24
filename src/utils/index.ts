@@ -93,7 +93,8 @@ export function getImportDeclaration (sourceFile: SourceFile, includeFile: Sourc
   }
 
   if (result === undefined && createIfNotExists) {
-    const relativePath = path.relative(sourceFile.getFilePath().toString(), includeFile.getFilePath().toString())
+    let relativePath = path.relative(path.dirname(sourceFile.getFilePath().toString()), includeFile.getFilePath().toString())
+    relativePath = relativePath.substr(0, relativePath.length - path.extname(relativePath).length)
     result = sourceFile.insertImportDeclaration(0, { moduleSpecifier: relativePath, namedImports: [] })
   }
   return result as ImportDeclaration
