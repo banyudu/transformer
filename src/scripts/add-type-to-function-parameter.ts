@@ -7,17 +7,16 @@
 import { getProject, getFunctions, getImportDeclaration } from '../utils'
 import { SourceFile } from 'ts-morph'
 
-const funcParamName = 'self' // function parameter name
-const newType = 'AST_Node' // new type name
-const importFile = 'lib/ast/node.ts' // file to import, example: lib/utils.ts
-const defaultImport = 'AST_Node' // set it if use default import
+const funcParamName = 'descend' // function parameter name
+const newType = 'Function' // new type name
+const importFile = '' // file to import, example: lib/utils.ts
+const defaultImport = '' // set it if use default import
 const namedImport = '' // set it if use named import
 
 ;
 (async () => {
   const project = getProject()
   const files = project.getSourceFiles()
-  const fileToImport = project.getSourceFile(file => file.getFilePath().includes(importFile)) as SourceFile
   for (const file of files) {
     const functions = getFunctions(file)
     let shouldImport = false
@@ -30,7 +29,8 @@ const namedImport = '' // set it if use named import
         }
       }
     }
-    if (shouldImport) {
+    if (shouldImport && importFile !== '') {
+      const fileToImport = project.getSourceFile(file => file.getFilePath().includes(importFile)) as SourceFile
       const decl = getImportDeclaration(file, fileToImport, true)
       if (String(namedImport) !== '') {
         decl?.addNamedImport(namedImport)
