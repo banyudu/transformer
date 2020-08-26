@@ -11,9 +11,9 @@
  */
 
 import { getProject, getImportDeclaration } from '../utils'
-import { CallExpression, SourceFile } from 'ts-morph'
+import { CallExpression, SourceFile, Identifier } from 'ts-morph'
 
-const limit = 1
+const limit = 1000
 let count = 0
 
 ;(async () => {
@@ -21,7 +21,6 @@ let count = 0
   const files = project.getSourceFiles()
   const utilsFile = project.getSourceFile(file => file.getFilePath().includes('lib/utils.ts')) as SourceFile
   for (const file of files) {
-    let parsed = false
     const utilsImportDeclaration = getImportDeclaration(file, utilsFile)
     const classes = file.getClasses()
     for (const cls of classes) {
@@ -38,14 +37,14 @@ let count = 0
               utilsImportDeclaration?.removeNamedImports()
               utilsImportDeclaration?.addNamedImports(utilsNames as string[])
               count++
-              parsed = true
+            }
+          } else if (initializer instanceof Identifier) {
+            if (initializer.getText() === 'pass_through') {
+              prop.replaceWithText('shallow_cmp_props = {}')
             }
           }
         }
       }
-    }
-    if (parsed) {
-      console.log('parsed file: ', file.getFilePath())
     }
     if (count >= limit) {
       break
