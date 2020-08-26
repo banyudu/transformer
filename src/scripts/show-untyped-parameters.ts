@@ -18,7 +18,7 @@ const name2Count: Map<string, number> = new Map()
       const parameters = func.getParameters()
       for (const param of parameters) {
         if (param.getType().getText() === 'any') {
-          const name = param.getText().replace(/: any/, '')
+          const name = param.getText().replace(/\??(: any)?$/, '')
           if (!name2Count.has(name)) {
             name2Count.set(name, 1)
           } else {
