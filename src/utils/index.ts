@@ -119,9 +119,14 @@ export function getAstClasses (): ClassDeclaration[] {
   return getClasses().filter(cls => cls.getName()?.startsWith('AST_'))
 }
 
-export function inspectNode (data: any | any[]): void {
+export function inspectNode (data: any | any[], withKindName?: boolean): void {
   if (!Array.isArray(data)) {
     data = [data]
   }
-  data.forEach((item: any) => console.log(item.getText()))
+  data.forEach((item: any) => {
+    console.log(item.getText())
+    if (withKindName === true) {
+      console.log(`    ${item.getKindName() as string}`)
+    }
+  })
 }
