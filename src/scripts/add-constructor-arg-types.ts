@@ -26,7 +26,7 @@ async function processOneClass (cls: ClassDeclaration): Promise<undefined> {
     extends: baseClass === undefined ? undefined : [getClassPropsInterfaceName(baseClass)]
   })
   cls.getConstructors().forEach(ctor => {
-    ctor.getParameter('args')?.replaceWithText(`args: ${getClassPropsInterfaceName(cls)}`)
+    ctor.getParameter('args')?.replaceWithText(`args?: ${getClassPropsInterfaceName(cls)}`)
     walk(ctor, node => {
       if (node instanceof PropertyAccessExpression && node.getFirstChild()?.getText() === 'args') {
         const prop = node.getLastChild()?.getText()
@@ -35,12 +35,12 @@ async function processOneClass (cls: ClassDeclaration): Promise<undefined> {
           if (propDef !== undefined) {
             const arr = propDef.split(':').map(item => item.trim())
             props.push({
-              name: arr[0],
-              type: arr[1]
+              name: prop,
+              type: arr[1] + '| undefined'
             })
           } else {
-            cls.insertProperty(0, { name: prop, type: 'any' })
-            props.push({ name: prop, type: 'any' })
+            cls.insertProperty(0, { name: prop, type: 'any | undefined' })
+            props.push({ name: prop, type: 'any | undefined' })
           }
         }
       }
