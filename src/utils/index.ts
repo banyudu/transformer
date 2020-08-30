@@ -1,5 +1,5 @@
 
-import { Project, SourceFile, Node, MethodDeclaration, FunctionDeclaration, ArrowFunction, ImportDeclaration, FunctionExpression } from 'ts-morph'
+import { Project, SourceFile, Node, MethodDeclaration, FunctionDeclaration, ArrowFunction, ImportDeclaration, FunctionExpression, ClassDeclaration } from 'ts-morph'
 import * as path from 'path'
 
 import yargs = require('yargs')
@@ -105,4 +105,23 @@ export function getImportDeclaration (sourceFile: SourceFile, includeFile: Sourc
 
 export function camelToSnakeCase (str: string): string {
   return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+}
+
+export function getFiles (): SourceFile[] {
+  return getProject().getSourceFiles()
+}
+
+export function getClasses (): ClassDeclaration[] {
+  return getFiles().reduce((res: ClassDeclaration[], file) => [...res, ...(file.getClasses().filter(cls => cls.getName()?.startsWith('AST_')))], [])
+}
+
+export function getAstClasses (): ClassDeclaration[] {
+  return getClasses().filter(cls => cls.getName()?.startsWith('AST_'))
+}
+
+export function inspectNode (data: any | any[]): void {
+  if (!Array.isArray(data)) {
+    data = [data]
+  }
+  data.forEach((item: any) => console.log(item.getText()))
 }
