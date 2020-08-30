@@ -8,7 +8,7 @@
   * }
  */
 
-import { getProject } from '../utils'
+import { getProject, getImportDeclaration, camelToSnakeCase } from '../utils'
 import { SyntaxKind } from 'ts-morph'
 
 const REGEX_PROP = /^(\w+):\s+['"]\[([^\]]+)\]/
@@ -38,9 +38,23 @@ const REGEX_PROP = /^(\w+):\s+['"]\[([^\]]+)\]/
             if (type.includes('*')) {
               type = `Array<${type.replace(/\*/g, '')}>`
             }
+            if (type === 'Map') {
+              type = 'Map<any, any>'
+            }
             const clsProp = cls.getProperty(name)
             if (clsProp?.getType().isAny() === true) {
               clsProp.setType(type)
+              type.split('|').forEach(subType => {
+                if (subType.startsWith('AST_')) {
+                  // auto add import sentence if type is AST_XXX
+                  const baseName = camelToSnakeCase(subType.substr('AST_'.length)).substr(1).replace(/_/g, '-')
+                  const typeFile = project.getSourceFile(file => file.getFilePath().includes(`lib/ast/${baseName}.ts`))
+                  if (typeFile !== undefined) {
+                    const decl = getImportDeclaration(file, typeFile, true)
+                    decl?.setDefaultImport(subType)
+                  }
+                }
+              })
             }
           }
         }
