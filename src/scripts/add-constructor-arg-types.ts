@@ -39,7 +39,7 @@ async function processOneClass (cls: ClassDeclaration): Promise<undefined> {
               type: arr[1]
             })
           } else {
-            cls.addProperty({ name: prop, type: 'any' })
+            cls.insertProperty(0, { name: prop, type: 'any' })
             props.push({ name: prop, type: 'any' })
           }
         }
