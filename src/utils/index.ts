@@ -4,8 +4,9 @@ import * as path from 'path'
 
 import yargs = require('yargs')
 
-const argv = yargs.options({
-  c: { type: 'string', alias: 'config' }
+export const argv = yargs.options({
+  c: { type: 'string', alias: 'config' },
+  l: { type: 'number', alias: 'limit' }
 }).argv
 
 /**
@@ -13,7 +14,7 @@ const argv = yargs.options({
  */
 export function getProject (): Project {
   // if tsconfig.json specified, use it
-  if ((argv.c ?? '') !== '') {
+  if ((argv.config ?? '') !== '') {
     return new Project({
       tsConfigFilePath: argv.c
     })

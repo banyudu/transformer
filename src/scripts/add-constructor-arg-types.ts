@@ -4,10 +4,12 @@
   * Add types for constructor args in ast_xxx classes
  */
 
-import { getProject, getAstClasses, walk } from '../utils'
+import { getProject, getAstClasses, walk, argv } from '../utils'
 import { PropertyAccessExpression, ClassDeclaration } from 'ts-morph'
 
 const processed: Set<ClassDeclaration> = new Set()
+
+let limit = Number(argv.limit)
 
 async function processOneClass (cls: ClassDeclaration): Promise<undefined> {
   if (cls === undefined || processed.has(cls) || cls.getName()?.startsWith('AST_') !== true) {
@@ -20,11 +22,17 @@ async function processOneClass (cls: ClassDeclaration): Promise<undefined> {
     await processOneClass(baseClass)
   }
   const props: Array<{ name: string, type: string}> = []
-  const propsInterface = file.addInterface({
-    name: getClassPropsInterfaceName(cls),
-    isExported: true,
-    extends: baseClass === undefined ? undefined : [getClassPropsInterfaceName(baseClass)]
-  })
+  let propsInterface = file.getInterface(getClassPropsInterfaceName(cls))
+  if (propsInterface !== undefined || limit <= 0) {
+    return
+  } else {
+    limit--
+    propsInterface = file.addInterface({
+      name: getClassPropsInterfaceName(cls),
+      isExported: true,
+      extends: baseClass === undefined ? undefined : [getClassPropsInterfaceName(baseClass)]
+    })
+  }
   cls.getConstructors().forEach(ctor => {
     ctor.getParameter('args')?.replaceWithText(`args?: ${getClassPropsInterfaceName(cls)}`)
     walk(ctor, node => {
