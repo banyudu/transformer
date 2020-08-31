@@ -31,16 +31,17 @@ async function processOneClass (cls: ClassDeclaration): Promise<undefined> {
       if (node instanceof PropertyAccessExpression && node.getFirstChild()?.getText() === 'args') {
         const prop = node.getLastChild()?.getText()
         if (prop !== undefined) {
+          const optionalProp = prop + '?'
           const propDef = cls.getProperty(prop)?.getText()
           if (propDef !== undefined) {
             const arr = propDef.split(':').map(item => item.trim())
             props.push({
-              name: prop,
-              type: arr[1] + '| undefined'
+              name: optionalProp,
+              type: arr[1] + ' | undefined'
             })
           } else {
-            cls.insertProperty(0, { name: prop, type: 'any | undefined' })
-            props.push({ name: prop, type: 'any | undefined' })
+            cls.insertProperty(0, { name: optionalProp, type: 'any | undefined' })
+            props.push({ name: optionalProp, type: 'any | undefined' })
           }
         }
       }
