@@ -7,11 +7,11 @@
 import { getProject, getFunctions, getImportDeclaration } from '../utils'
 import { SourceFile } from 'ts-morph'
 
-const funcParamName = 'M' // function parameter name
-const newType = 'MozillaAst' // new type name
-const importFile = 'lib/types.ts' // file to import, example: lib/utils.ts
-const defaultImport = '' // set it if use default import
-const namedImport = 'MozillaAst' // set it if use named import
+const funcParamName = 'visitor' // function parameter name
+const newType = 'TreeWalker' // new type name
+const importFile = 'lib/tree-walker.ts' // file to import, example: lib/utils.ts
+const defaultImport = 'TreeWalker' // set it if use default import
+const namedImport = '' // set it if use named import
 
 ;
 (async () => {
