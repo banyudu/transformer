@@ -14,7 +14,7 @@
 
   * to
 
-  walkInner () {
+  walkInner = (visitor: TreeWalker) => {
     this.segments.forEach(function (seg) {
       seg._walk(visitor)
     })
@@ -39,7 +39,7 @@ import { MethodDeclaration, ArrowFunction } from 'ts-morph'
         let replaceMent = ''
         walk(_walk, (node) => {
           if (node instanceof ArrowFunction) {
-            replaceMent = `walkInner (visitor: TreeWalker) {\n${node.getBodyText() ?? ''}\n}`
+            replaceMent = `walkInner = (visitor: TreeWalker) => {\n${node.getBodyText() ?? ''}\n}`
             return false
           }
           return true
