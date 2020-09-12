@@ -6,7 +6,9 @@ import yargs = require('yargs')
 
 export const argv = yargs.options({
   c: { type: 'string', alias: 'config' },
-  l: { type: 'number', alias: 'limit' }
+  l: { type: 'number', alias: 'limit' },
+  sort: { type: 'boolean' },
+  filter: { type: 'string' }
 }).argv
 
 /**
