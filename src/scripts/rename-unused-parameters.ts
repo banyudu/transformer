@@ -20,7 +20,7 @@ import { ParameterDeclaration, SyntaxKind } from 'ts-morph'
       for (const param of params) {
         const self = param.getChildrenOfKind(SyntaxKind.Identifier)[0]
         const name = param.getName()
-        if (name.startsWith('_')) {
+        if (name.startsWith('_') || name === 'this') {
           continue
         }
         const parent = param.getParent()
