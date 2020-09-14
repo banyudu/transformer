@@ -133,3 +133,20 @@ export function inspectNode (data: any | any[], withKindName?: boolean): void {
     }
   })
 }
+
+export async function doActionsMayFail (actions: Function[]): Promise<void> {
+  let failed: Function[] = []
+  for (const action of actions) {
+    try {
+      action()
+    } catch (error) {
+      failed.push(action)
+    }
+  }
+  if (actions.length === failed.length) {
+    // all failed, break
+    return
+  }
+  actions = failed
+  failed = []
+}
